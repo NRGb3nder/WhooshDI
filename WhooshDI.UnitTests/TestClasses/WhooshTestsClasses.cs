@@ -13,4 +13,12 @@ namespace WhooshDI.UnitTests.TestClasses
             ParamlessCtorClass = obj;
         }
     }
+    
+    public class TransientImplConfig : WhooshConfiguration
+    {
+        public TransientImplConfig()
+        {
+            Register<ParamlessCtorClass>().AsTransient();
+        }
+    }
 }
