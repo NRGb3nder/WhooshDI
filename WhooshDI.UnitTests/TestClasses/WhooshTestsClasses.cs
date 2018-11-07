@@ -2,76 +2,70 @@ using WhooshDI.Attributes;
 
 namespace WhooshDI.UnitTests.TestClasses
 {
-    public class ParamlessCtorClass
+    internal class ClassWithParameterlessCtor
     {
     }
 
-    public class ParameterizedCtorClass
+    internal class ClassWithParameterizedCtor
     {
-        public ParamlessCtorClass ParamlessCtorClass { get; }
+        public ClassWithParameterlessCtor ClassWithParameterlessCtor { get; }
         
-        public ParameterizedCtorClass(ParamlessCtorClass obj) => ParamlessCtorClass = obj;
+        public ClassWithParameterizedCtor(ClassWithParameterlessCtor obj) => ClassWithParameterlessCtor = obj;
     }
     
-    public enum Cars 
+    internal enum Cars
     {
         Renault,
         Volkswagen
     }
 
-    public class CarService
+    internal class CarService
     {
         public ICar Car { get; }
         
         public CarService([DependencyKey(Cars.Volkswagen)] ICar car) => Car = car;
     }
 
-    public interface ICar
+    internal interface ICar
     {
         string ModelName { get; set; }
     }
 
-    public class RenaultCar : ICar
+    internal class RenaultCar : ICar
     {
         public string ModelName { get; set; } = "Logan";
     }
 
-    public class VolkswagenCar : ICar
+    internal class VolkswagenCar : ICar
     {
         public string ModelName { get; set; } = "Polo";
     }
 
-    public class ClassWithCircularDependency
+    internal class ClassWithCircularDependency
     {
-        public ClassWithDeepCircularDependency Obj { get; set; }
+        private ClassWithDeepCircularDependency Obj { get; }
 
         public ClassWithCircularDependency(ClassWithDeepCircularDependency obj) => Obj = obj;
     }
 
-    public class ClassWithDeepCircularDependency
+    internal class ClassWithDeepCircularDependency
     {
-        public ClassWithCircularDependency Obj { get; set; }
+        private ClassWithCircularDependency Obj { get; }
         
         public ClassWithDeepCircularDependency(ClassWithCircularDependency obj) => Obj = obj;
     }
     
-    public class TransientImplConfig : WhooshConfiguration
+    internal class TransientImplConfig : WhooshConfiguration
     {
-        public TransientImplConfig()
-        {
-            Register<ParamlessCtorClass>().AsTransient();
-        }
+        public TransientImplConfig() => Register<ClassWithParameterlessCtor>().AsTransient();
     }
     
-    public class SingletonImplConfig : WhooshConfiguration
+    internal class SingletonImplConfig : WhooshConfiguration
     {
-        public SingletonImplConfig()
-        {
-            Register<ParamlessCtorClass>().AsSingleton();
-        }
+        public SingletonImplConfig() => Register<ClassWithParameterlessCtor>().AsSingleton();
     }
 
-    public class NamedDependenciesConfig : WhooshConfiguration
+    internal class NamedDependenciesConfig : WhooshConfiguration
     {
         public NamedDependenciesConfig()
         {

@@ -14,9 +14,9 @@ namespace WhooshDI.UnitTests
         {
             var whoosh = new Whoosh();
 
-            var instance = whoosh.Resolve<ParamlessCtorClass>();
+            var instance = whoosh.Resolve<ClassWithParameterlessCtor>();
 
-            instance.Should().BeOfType<ParamlessCtorClass>();
+            instance.Should().BeOfType<ClassWithParameterlessCtor>();
         }
 
         [Test]
@@ -24,9 +24,9 @@ namespace WhooshDI.UnitTests
         {
             var whoosh = new Whoosh();
 
-            var instance = whoosh.Resolve<ParameterizedCtorClass>();
+            var instance = whoosh.Resolve<ClassWithParameterizedCtor>();
 
-            instance.ParamlessCtorClass.Should().BeOfType<ParamlessCtorClass>();
+            instance.ClassWithParameterlessCtor.Should().BeOfType<ClassWithParameterlessCtor>();
         }
         
         [Test]
@@ -35,8 +35,8 @@ namespace WhooshDI.UnitTests
             var config = new TransientImplConfig();
             var whoosh = new Whoosh(config);
 
-            var instance = whoosh.Resolve<ParamlessCtorClass>();
-            var anotherInstance = whoosh.Resolve<ParamlessCtorClass>();
+            var instance = whoosh.Resolve<ClassWithParameterlessCtor>();
+            var anotherInstance = whoosh.Resolve<ClassWithParameterlessCtor>();
 
             instance.Should().NotBe(anotherInstance);
         }
@@ -46,8 +46,8 @@ namespace WhooshDI.UnitTests
         {
             var whoosh = new Whoosh();
     
-            var instance = whoosh.Resolve<ParamlessCtorClass>();
-            var anotherInstance = whoosh.Resolve<ParamlessCtorClass>();
+            var instance = whoosh.Resolve<ClassWithParameterlessCtor>();
+            var anotherInstance = whoosh.Resolve<ClassWithParameterlessCtor>();
 
             instance.Should().NotBe(anotherInstance);
         }
@@ -58,8 +58,8 @@ namespace WhooshDI.UnitTests
             var config = new SingletonImplConfig();
             var whoosh = new Whoosh(config);
 
-            var instance = whoosh.Resolve<ParamlessCtorClass>();
-            var anotherInstance = whoosh.Resolve<ParamlessCtorClass>();
+            var instance = whoosh.Resolve<ClassWithParameterlessCtor>();
+            var anotherInstance = whoosh.Resolve<ClassWithParameterlessCtor>();
 
             instance.Should().Be(anotherInstance);
         }
