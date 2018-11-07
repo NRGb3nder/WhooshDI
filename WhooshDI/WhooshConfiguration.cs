@@ -11,7 +11,7 @@ namespace WhooshDI
         private readonly Dictionary<Type, List<ImplementationConfiguration>> _dependencyConfigurations = 
             new Dictionary<Type, List<ImplementationConfiguration>>();
 
-        public IEnumerable<ImplementationConfiguration> GetConfiguration(Type type)
+        public List<ImplementationConfiguration> GetConfigurationsForDependency(Type type)
         {
             return _dependencyConfigurations.TryGetValue(type, out var configuration) ? configuration : null;
         }

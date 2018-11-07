@@ -49,5 +49,17 @@ namespace WhooshDI.UnitTests
 
             instance.Should().NotBe(anotherInstance);
         }
+        
+        [Test]
+        public void AllowsSingletonDependencies()
+        {
+            var config = new SingletonImplConfig();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<ParamlessCtorClass>();
+            var anotherInstance = whoosh.Resolve<ParamlessCtorClass>();
+
+            instance.Should().Be(anotherInstance);
+        }
     }
 }

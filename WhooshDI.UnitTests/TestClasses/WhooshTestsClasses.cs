@@ -21,4 +21,12 @@ namespace WhooshDI.UnitTests.TestClasses
             Register<ParamlessCtorClass>().AsTransient();
         }
     }
+    
+    public class SingletonImplConfig : WhooshConfiguration
+    {
+        public SingletonImplConfig()
+        {
+            Register<ParamlessCtorClass>().AsSingleton();
+        }
+    }
 }

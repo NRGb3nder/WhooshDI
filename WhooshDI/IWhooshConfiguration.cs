@@ -6,6 +6,6 @@ namespace WhooshDI
 {
     public interface IWhooshConfiguration
     {
-        IEnumerable<ImplementationConfiguration> GetConfiguration(Type type);
+        List<ImplementationConfiguration> GetConfigurationsForDependency(Type type);
     }
 }

@@ -1,11 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using WhooshDI.Configuration;
 
 namespace WhooshDI
 {
     public class Whoosh : IWhooshContainer
     {
         private readonly WhooshConfiguration _configuration;
+        
+        private readonly Dictionary<ImplementationConfiguration, object> _singletones = 
+            new Dictionary<ImplementationConfiguration, object>();
 
         public Whoosh()
         {
@@ -32,16 +38,53 @@ namespace WhooshDI
         }
         
         private object GetInstance(Type type)
-        {       
+        {
+            var implConfig = _configuration != null ? GetImplementationConfiguration(type) : null;
+
+            var instance = GetInstanceIfSingleton(implConfig);
+            if (instance != null)
+            {
+                return instance;
+            }
+            
             var constructor = type.GetConstructors()
                 .OrderByDescending(c => c.GetParameters().Length)
                 .First();
-
             var arguments = constructor.GetParameters()
                 .Select(param => GetInstance(param.ParameterType))
                 .ToArray();
             
-            return Activator.CreateInstance(type, arguments);
+            instance = Activator.CreateInstance(type, arguments);
+
+            SaveInstanceIfSingleton(implConfig, instance);
+
+            return instance;
+        }
+
+        private ImplementationConfiguration GetImplementationConfiguration(Type type)
+        {
+            var implConfigs = _configuration.GetConfigurationsForDependency(type);
+            
+            return implConfigs == null ? null
+                : implConfigs.Where(c => c.ImplementationType == type)?.First() ?? implConfigs.First();
+        }
+
+        private object GetInstanceIfSingleton(ImplementationConfiguration implConfig)
+        {
+            if (implConfig == null || implConfig.Lifestyle != Lifestyle.Singleton)
+            {
+                return null;
+            } 
+            
+            return _singletones.TryGetValue(implConfig, out var singleton) ? singleton : null;
+        }
+
+        private void SaveInstanceIfSingleton(ImplementationConfiguration implConfig, object instance)
+        {
+            if (implConfig != null && implConfig.Lifestyle == Lifestyle.Singleton)
+            {
+                _singletones.Add(implConfig, instance);
+            }
         }
     }
 }
