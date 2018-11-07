@@ -76,5 +76,16 @@ namespace WhooshDI.UnitTests
 
             instance.Should().BeOfType<VolkswagenCar>();
         }
+
+        [Test]
+        public void NamesCouldBeProvidedInParameterAttributes()
+        {
+            var config = new NamedDependenciesConfig();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<CarService>();
+
+            instance.Car.Should().BeOfType<VolkswagenCar>();
+        }
     }
 }

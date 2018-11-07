@@ -1,3 +1,5 @@
+using WhooshDI.Attributes;
+
 namespace WhooshDI.UnitTests.TestClasses
 {
     public class ParamlessCtorClass
@@ -18,6 +20,16 @@ namespace WhooshDI.UnitTests.TestClasses
     {
         Renault,
         Volkswagen
+    }
+
+    public class CarService
+    {
+        public ICar Car { get; }
+        
+        public CarService([DependencyKey(Cars.Volkswagen)] ICar car)
+        {
+            Car = car;
+        }
     }
 
     public interface ICar

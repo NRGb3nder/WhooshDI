@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using WhooshDI.Attributes;
 using WhooshDI.Configuration;
 
 namespace WhooshDI
@@ -37,15 +39,10 @@ namespace WhooshDI
             {
                 throw new InvalidOperationException("Configuration for container is not provided.");
             }
-            
-            var implConfigs = _configuration.GetConfigurationsForDependency(typeof(T)) 
-                ?? throw new InvalidOperationException($"Dependency {typeof(T).FullName} is not configured.");
 
-            var namedImplConfig = implConfigs.FirstOrDefault(c => c.Name.Equals(name))
-                ?? throw new InvalidOperationException(
-                    $"Dependency {typeof(T).FullName} does not have implementation with name {name}");
+            var namedImplConfig = GetNamedImplementationConfiguration(typeof(T), name);
 
-            return (T) GetInstance(typeof(T), namedImplConfig);
+            return (T)GetInstance(typeof(T), namedImplConfig);
         }
         
         private object GetInstance(Type type)
@@ -57,25 +54,54 @@ namespace WhooshDI
 
         private object GetInstance(Type type, ImplementationConfiguration implConfig)
         {
-            var instance = GetInstanceIfSingleton(implConfig);
+            var instance = TryGetInstanceIfSingleton(implConfig);
             if (instance != null)
             {
                 return instance;
             }
 
             var typeToInstantiate = implConfig != null ? implConfig.ImplementationType : type;
+            
             var constructor = typeToInstantiate.GetConstructors()
                 .OrderByDescending(c => c.GetParameters().Length)
                 .First();
-            var arguments = constructor.GetParameters()
-                .Select(param => GetInstance(param.ParameterType))
-                .ToArray();
+            var arguments = GetConstructorArguments(constructor);
             
             instance = Activator.CreateInstance(typeToInstantiate, arguments);
 
             SaveInstanceIfSingleton(implConfig, instance);
 
             return instance;
+        }
+
+        private object[] GetConstructorArguments(ConstructorInfo constructor)
+        {
+            return constructor.GetParameters()
+                .Select(param =>
+                {
+                    var dependencyKeyAttribute = param.GetCustomAttributes<DependencyKeyAttribute>().FirstOrDefault();
+
+                    if (dependencyKeyAttribute == null)
+                    {
+                        return GetInstance(param.ParameterType);
+                    }
+                   
+                    var namedImplConfig = GetNamedImplementationConfiguration(param.ParameterType, 
+                        dependencyKeyAttribute.Key);
+
+                    return GetInstance(param.ParameterType, namedImplConfig);
+                })
+                .ToArray();
+        }
+
+        private ImplementationConfiguration GetNamedImplementationConfiguration(Type type, object name)
+        {
+            var implConfigs = _configuration.GetConfigurationsForDependency(type) 
+                ?? throw new InvalidOperationException($"Dependency {type.FullName} is not configured.");
+
+            return implConfigs.FirstOrDefault(c => c.Name.Equals(name))
+                ?? throw new InvalidOperationException(
+                    $"Dependency {type.FullName} does not have implementation with name {name}.");
         }
 
         private ImplementationConfiguration GetImplementationConfiguration(Type type)
@@ -86,7 +112,7 @@ namespace WhooshDI
                 : implConfigs.Where(c => c.ImplementationType == type)?.First() ?? implConfigs.First();
         }
 
-        private object GetInstanceIfSingleton(ImplementationConfiguration implConfig)
+        private object TryGetInstanceIfSingleton(ImplementationConfiguration implConfig)
         {
             if (implConfig == null || implConfig.Lifestyle != Lifestyle.Singleton)
             {
