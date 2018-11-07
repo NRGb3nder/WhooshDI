@@ -18,7 +18,7 @@ namespace WhooshDI
 
         public T Resolve<T>()
         {
-            throw new NotImplementedException();
+            return (T) GetInstance(typeof(T));
         }
 
         public T Resolve<T>(int name)
@@ -29,6 +29,19 @@ namespace WhooshDI
         public T Resolve<T>(string name)
         {
             throw new NotImplementedException();
+        }
+        
+        private object GetInstance(Type type)
+        {       
+            var constructor = type.GetConstructors()
+                .OrderByDescending(c => c.GetParameters().Length)
+                .First();
+
+            var arguments = constructor.GetParameters()
+                .Select(param => GetInstance(param.ParameterType))
+                .ToArray();
+            
+            return Activator.CreateInstance(type, arguments);
         }
     }
 }
