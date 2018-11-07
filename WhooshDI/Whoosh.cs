@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using WhooshDI.Attributes;
 using WhooshDI.Configuration;
+using WhooshDI.Exceptions;
 
 namespace WhooshDI
 {
@@ -13,6 +14,8 @@ namespace WhooshDI
         
         private readonly Dictionary<ImplementationConfiguration, object> _singletons = 
             new Dictionary<ImplementationConfiguration, object>();
+
+        private readonly Stack<Type> _trace = new Stack<Type>();
 
         public Whoosh()
         {
@@ -54,6 +57,14 @@ namespace WhooshDI
 
         private object GetInstance(Type type, ImplementationConfiguration implConfig)
         {
+            if (_trace.Contains(type))
+            {
+                throw new CircularDependencyException(
+                    $"Circular dependency detected:\n{string.Join(" in\n", _trace.Select(e => e.FullName).ToArray())}");
+            }
+            
+            _trace.Push(type);
+            
             var instance = TryGetInstanceIfSingleton(implConfig);
             if (instance != null)
             {
@@ -70,6 +81,8 @@ namespace WhooshDI
             instance = Activator.CreateInstance(typeToInstantiate, arguments);
 
             SaveInstanceIfSingleton(implConfig, instance);
+
+            _trace.Pop();
 
             return instance;
         }

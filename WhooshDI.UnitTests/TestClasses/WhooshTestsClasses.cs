@@ -10,10 +10,7 @@ namespace WhooshDI.UnitTests.TestClasses
     {
         public ParamlessCtorClass ParamlessCtorClass { get; }
         
-        public ParameterizedCtorClass(ParamlessCtorClass obj)
-        {
-            ParamlessCtorClass = obj;
-        }
+        public ParameterizedCtorClass(ParamlessCtorClass obj) => ParamlessCtorClass = obj;
     }
     
     public enum Cars 
@@ -26,10 +23,7 @@ namespace WhooshDI.UnitTests.TestClasses
     {
         public ICar Car { get; }
         
-        public CarService([DependencyKey(Cars.Volkswagen)] ICar car)
-        {
-            Car = car;
-        }
+        public CarService([DependencyKey(Cars.Volkswagen)] ICar car) => Car = car;
     }
 
     public interface ICar
@@ -45,6 +39,20 @@ namespace WhooshDI.UnitTests.TestClasses
     public class VolkswagenCar : ICar
     {
         public string ModelName { get; set; } = "Polo";
+    }
+
+    public class ClassWithCircularDependency
+    {
+        public ClassWithDeepCircularDependency Obj { get; set; }
+
+        public ClassWithCircularDependency(ClassWithDeepCircularDependency obj) => Obj = obj;
+    }
+
+    public class ClassWithDeepCircularDependency
+    {
+        public ClassWithCircularDependency Obj { get; set; }
+        
+        public ClassWithDeepCircularDependency(ClassWithCircularDependency obj) => Obj = obj;
     }
     
     public class TransientImplConfig : WhooshConfiguration

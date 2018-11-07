@@ -1,5 +1,7 @@
+using System;
 using FluentAssertions;
 using NUnit.Framework;
+using WhooshDI.Exceptions;
 using WhooshDI.UnitTests.TestClasses;
 
 namespace WhooshDI.UnitTests
@@ -60,6 +62,16 @@ namespace WhooshDI.UnitTests
             var anotherInstance = whoosh.Resolve<ParamlessCtorClass>();
 
             instance.Should().Be(anotherInstance);
+        }
+
+        [Test]
+        public void ThrowsCircularDependencyExceptionWhenCircularDependencyDetected()
+        {
+            var whoosh = new Whoosh();
+
+            var act = new Action(() => whoosh.Resolve<ClassWithDeepCircularDependency>());
+            
+            act.Should().Throw<CircularDependencyException>();
         }
     }
 
