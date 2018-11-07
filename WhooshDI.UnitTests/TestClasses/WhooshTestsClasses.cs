@@ -41,6 +41,18 @@ namespace WhooshDI.UnitTests.TestClasses
         public string ModelName { get; set; } = "Polo";
     }
 
+    internal interface ITransportLayerProtocol
+    {
+    }
+
+    internal class TcpProtocol : ITransportLayerProtocol
+    {
+    }
+    
+    internal class UdpProtocol : ITransportLayerProtocol
+    {
+    }
+
     internal class ClassWithCircularDependency
     {
         private ClassWithDeepCircularDependency Obj { get; }
@@ -71,6 +83,15 @@ namespace WhooshDI.UnitTests.TestClasses
         {
             Register<ICar, RenaultCar>().WithName(Cars.Renault);
             Register<ICar, VolkswagenCar>().WithName(Cars.Volkswagen);
+        }
+    }
+
+    internal class NoNamesConfig : WhooshConfiguration
+    {
+        public NoNamesConfig()
+        {
+            Register<ITransportLayerProtocol, TcpProtocol>();
+            Register<ITransportLayerProtocol, UdpProtocol>();
         }
     }
 }

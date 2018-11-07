@@ -7,6 +7,20 @@ using WhooshDI.UnitTests.TestClasses;
 namespace WhooshDI.UnitTests
 {
     [TestFixture]
+    public class Whoosh_Ctor_WithConfiguration
+    {
+        [Test]
+        public void ThrowsArgumentNullExceptionWhenConfigurationIsNull()
+        {
+            WhooshConfiguration config = null;
+            
+            Action act = () => new Whoosh(config);
+
+            act.Should().Throw<ArgumentNullException>();
+        }
+    }
+    
+    [TestFixture]
     public class Whoosh_Resolve
     {
         [Test]
@@ -63,15 +77,58 @@ namespace WhooshDI.UnitTests
 
             instance.Should().Be(anotherInstance);
         }
+        
+        [Test]
+        public void NamesCouldBeProvidedInParameterAttributes()
+        {
+            var config = new NamedDependenciesConfig();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<CarService>();
+
+            instance.Car.Should().BeOfType<VolkswagenCar>();
+        }
 
         [Test]
         public void ThrowsCircularDependencyExceptionWhenCircularDependencyDetected()
         {
             var whoosh = new Whoosh();
 
-            var act = new Action(() => whoosh.Resolve<ClassWithDeepCircularDependency>());
+            Action act = () => whoosh.Resolve<ClassWithDeepCircularDependency>();
             
             act.Should().Throw<CircularDependencyException>();
+        }
+
+        [Test]
+        public void ThrowsInvalidOperationExceptionWhenDependencyCanNotBeInstantiated()
+        {
+            var whoosh = new Whoosh();
+
+            Action act = () => whoosh.Resolve<ICar>();
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+        
+        [Test]
+        public void ThrowsInvalidOperationExceptionWhenResolvingUnregisteredDependencyWithName()
+        {
+            var config = new TransientImplConfig();
+            var whoosh = new Whoosh(config);
+
+            Action act = () => whoosh.Resolve<ITransportLayerProtocol>();
+                
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void ThrowsInvalidOperationExceptionWhenResolvingRegisteredDependencyWithUnregisteredName()
+        {
+            var config = new NoNamesConfig();
+            var whoosh = new Whoosh(config);
+
+            Action act = () => whoosh.Resolve<ITransportLayerProtocol>("TCP");
+
+            act.Should().Throw<InvalidOperationException>();
         }
     }
 
@@ -90,14 +147,24 @@ namespace WhooshDI.UnitTests
         }
 
         [Test]
-        public void NamesCouldBeProvidedInParameterAttributes()
+        public void ThrowsArgumentNullExceptionWhenNameIsNull()
         {
             var config = new NamedDependenciesConfig();
             var whoosh = new Whoosh(config);
 
-            var instance = whoosh.Resolve<CarService>();
+            Action act = () => whoosh.Resolve<ICar>(null);
 
-            instance.Car.Should().BeOfType<VolkswagenCar>();
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void ThrowsInvalidOperationExceptionWhenConfigurationIsNotProvided()
+        {
+            var whoosh = new Whoosh();
+
+            Action act = () => whoosh.Resolve<ICar>(Cars.Renault);
+
+            act.Should().Throw<InvalidOperationException>();
         }
     }
 }

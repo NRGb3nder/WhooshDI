@@ -23,7 +23,7 @@ namespace WhooshDI
 
         public Whoosh(WhooshConfiguration configuration)
         {
-            _configuration = configuration;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public T Resolve<T>()
@@ -72,10 +72,9 @@ namespace WhooshDI
             }
 
             var typeToInstantiate = implConfig != null ? implConfig.ImplementationType : type;
-            
-            var constructor = typeToInstantiate.GetConstructors()
-                .OrderByDescending(c => c.GetParameters().Length)
-                .First();
+
+            var constructor = GetConstructorWithLongestParameterList(typeToInstantiate)
+                ?? throw new InvalidOperationException($"Could not instantiate type: {typeToInstantiate.FullName}");
             var arguments = GetConstructorArguments(constructor);
             
             instance = Activator.CreateInstance(typeToInstantiate, arguments);
@@ -112,7 +111,7 @@ namespace WhooshDI
             var implConfigs = _configuration.GetConfigurationsForDependency(type) 
                 ?? throw new InvalidOperationException($"Dependency {type.FullName} is not configured.");
 
-            return implConfigs.FirstOrDefault(c => c.Name.Equals(name))
+            return implConfigs.FirstOrDefault(c => c.Name != null && c.Name.Equals(name))
                 ?? throw new InvalidOperationException(
                     $"Dependency {type.FullName} does not have implementation with name {name}.");
         }
@@ -141,6 +140,13 @@ namespace WhooshDI
             {
                 _singletons.Value.Add(implConfig, instance);
             }
+        }
+        
+        private static ConstructorInfo GetConstructorWithLongestParameterList(Type type)
+        {
+            return type.GetConstructors()
+                .OrderByDescending(c => c.GetParameters().Length)
+                .FirstOrDefault();
         }
     }
 }
