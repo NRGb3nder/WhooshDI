@@ -26,14 +26,7 @@ namespace WhooshDI.Syntax
             return this;
         }
 
-        public ConfigurationBuilder WithName(int name)
-        {
-            _config.Name = name;
-
-            return this;
-        }
-
-        public ConfigurationBuilder WithName(string name)
+        public ConfigurationBuilder WithName(object name)
         {
             _config.Name = name ?? throw new ArgumentNullException(nameof(name));
 

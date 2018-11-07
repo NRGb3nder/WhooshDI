@@ -62,4 +62,19 @@ namespace WhooshDI.UnitTests
             instance.Should().Be(anotherInstance);
         }
     }
+
+    [TestFixture]
+    public class Whoosh_Resolve_WithName
+    {
+        [Test]
+        public void AllowsNamedDependencies()
+        {
+            var config = new NamedDependenciesConfig();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<ICar>(Cars.Volkswagen);
+
+            instance.Should().BeOfType<VolkswagenCar>();
+        }
+    }
 }

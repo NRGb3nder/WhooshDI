@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using WhooshDI.Configuration;
 
 namespace WhooshDI
@@ -10,7 +9,7 @@ namespace WhooshDI
     {
         private readonly WhooshConfiguration _configuration;
         
-        private readonly Dictionary<ImplementationConfiguration, object> _singletones = 
+        private readonly Dictionary<ImplementationConfiguration, object> _singletons = 
             new Dictionary<ImplementationConfiguration, object>();
 
         public Whoosh()
@@ -24,37 +23,55 @@ namespace WhooshDI
 
         public T Resolve<T>()
         {
-            return (T) GetInstance(typeof(T));
+            return (T)GetInstance(typeof(T));
         }
 
-        public T Resolve<T>(int name)
+        public T Resolve<T>(object name)
         {
-            throw new NotImplementedException();
-        }
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
 
-        public T Resolve<T>(string name)
-        {
-            throw new NotImplementedException();
+            if (_configuration == null)
+            {
+                throw new InvalidOperationException("Configuration for container is not provided.");
+            }
+            
+            var implConfigs = _configuration.GetConfigurationsForDependency(typeof(T)) 
+                ?? throw new InvalidOperationException($"Dependency {typeof(T).FullName} is not configured.");
+
+            var namedImplConfig = implConfigs.FirstOrDefault(c => c.Name.Equals(name))
+                ?? throw new InvalidOperationException(
+                    $"Dependency {typeof(T).FullName} does not have implementation with name {name}");
+
+            return (T) GetInstance(typeof(T), namedImplConfig);
         }
         
         private object GetInstance(Type type)
         {
             var implConfig = _configuration != null ? GetImplementationConfiguration(type) : null;
 
+            return GetInstance(type, implConfig);
+        }
+
+        private object GetInstance(Type type, ImplementationConfiguration implConfig)
+        {
             var instance = GetInstanceIfSingleton(implConfig);
             if (instance != null)
             {
                 return instance;
             }
-            
-            var constructor = type.GetConstructors()
+
+            var typeToInstantiate = implConfig != null ? implConfig.ImplementationType : type;
+            var constructor = typeToInstantiate.GetConstructors()
                 .OrderByDescending(c => c.GetParameters().Length)
                 .First();
             var arguments = constructor.GetParameters()
                 .Select(param => GetInstance(param.ParameterType))
                 .ToArray();
             
-            instance = Activator.CreateInstance(type, arguments);
+            instance = Activator.CreateInstance(typeToInstantiate, arguments);
 
             SaveInstanceIfSingleton(implConfig, instance);
 
@@ -76,14 +93,14 @@ namespace WhooshDI
                 return null;
             } 
             
-            return _singletones.TryGetValue(implConfig, out var singleton) ? singleton : null;
+            return _singletons.TryGetValue(implConfig, out var singleton) ? singleton : null;
         }
 
         private void SaveInstanceIfSingleton(ImplementationConfiguration implConfig, object instance)
         {
             if (implConfig != null && implConfig.Lifestyle == Lifestyle.Singleton)
             {
-                _singletones.Add(implConfig, instance);
+                _singletons.Add(implConfig, instance);
             }
         }
     }

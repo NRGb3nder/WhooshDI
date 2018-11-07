@@ -14,6 +14,27 @@ namespace WhooshDI.UnitTests.TestClasses
         }
     }
     
+    public enum Cars 
+    {
+        Renault,
+        Volkswagen
+    }
+
+    public interface ICar
+    {
+        string ModelName { get; set; }
+    }
+
+    public class RenaultCar : ICar
+    {
+        public string ModelName { get; set; } = "Logan";
+    }
+
+    public class VolkswagenCar : ICar
+    {
+        public string ModelName { get; set; } = "Polo";
+    }
+    
     public class TransientImplConfig : WhooshConfiguration
     {
         public TransientImplConfig()
@@ -27,6 +48,15 @@ namespace WhooshDI.UnitTests.TestClasses
         public SingletonImplConfig()
         {
             Register<ParamlessCtorClass>().AsSingleton();
+        }
+    }
+
+    public class NamedDependenciesConfig : WhooshConfiguration
+    {
+        public NamedDependenciesConfig()
+        {
+            Register<ICar, RenaultCar>().WithName(Cars.Renault);
+            Register<ICar, VolkswagenCar>().WithName(Cars.Volkswagen);
         }
     }
 }
