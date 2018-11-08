@@ -12,8 +12,8 @@ namespace WhooshDI
     {
         private readonly WhooshConfiguration _configuration;
         
-        private readonly Lazy<Dictionary<ImplementationConfiguration, object>> _singletons = 
-            new Lazy<Dictionary<ImplementationConfiguration, object>>();
+        private readonly Dictionary<ImplementationConfiguration, object> _singletons = 
+            new Dictionary<ImplementationConfiguration, object>();
         
         private readonly object _syncRoot = new object();
 
@@ -141,14 +141,14 @@ namespace WhooshDI
                 return null;
             } 
             
-            return _singletons.Value.TryGetValue(implConfig, out var singleton) ? singleton : null;
+            return _singletons.TryGetValue(implConfig, out var singleton) ? singleton : null;
         }
 
         private void SaveInstanceIfSingleton(ImplementationConfiguration implConfig, object instance)
         {
             if (implConfig != null && implConfig.Lifestyle == Lifestyle.Singleton)
             {
-                _singletons.Value.Add(implConfig, instance);
+                _singletons.Add(implConfig, instance);
             }
         }
         
