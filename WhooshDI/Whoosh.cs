@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Force.DeepCloner;
 using WhooshDI.Attributes;
 using WhooshDI.Configuration;
 using WhooshDI.Exceptions;
@@ -25,9 +26,14 @@ namespace WhooshDI
 
         public Whoosh(IWhooshConfiguration configuration)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
             
-            _configuration.Validate();
+            configuration.Validate();
+
+            _configuration = configuration.DeepClone();
         }
 
         public T Resolve<T>()
