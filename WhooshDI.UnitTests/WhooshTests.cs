@@ -2,7 +2,7 @@ using System;
 using FluentAssertions;
 using NUnit.Framework;
 using WhooshDI.Exceptions;
-using WhooshDI.UnitTests.TestClasses;
+using WhooshDI.UnitTests.Helpers;
 
 namespace WhooshDI.UnitTests
 {
@@ -117,17 +117,6 @@ namespace WhooshDI.UnitTests
 
             Action act = () => whoosh.Resolve<ITransportLayerProtocol>();
                 
-            act.Should().Throw<InvalidOperationException>();
-        }
-
-        [Test]
-        public void ThrowsInvalidOperationExceptionWhenResolvingRegisteredDependencyWithUnregisteredName()
-        {
-            var config = new NoNamesConfig();
-            var whoosh = new Whoosh(config);
-
-            Action act = () => whoosh.Resolve<ITransportLayerProtocol>("TCP");
-
             act.Should().Throw<InvalidOperationException>();
         }
     }

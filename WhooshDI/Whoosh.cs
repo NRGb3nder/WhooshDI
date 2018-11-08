@@ -24,6 +24,8 @@ namespace WhooshDI
         public Whoosh(WhooshConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            
+            _configuration.Validate();
         }
 
         public T Resolve<T>()

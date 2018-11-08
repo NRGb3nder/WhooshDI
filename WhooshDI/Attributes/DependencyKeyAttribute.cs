@@ -2,7 +2,7 @@ using System;
 
 namespace WhooshDI.Attributes
 {
-    [AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Parameter)]
     public class DependencyKeyAttribute : Attribute
     {
         public object Key { get; }

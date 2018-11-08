@@ -1,6 +1,6 @@
 using WhooshDI.Attributes;
 
-namespace WhooshDI.UnitTests.TestClasses
+namespace WhooshDI.UnitTests.Helpers
 {
     internal class ClassWithParameterlessCtor
     {
@@ -65,33 +65,5 @@ namespace WhooshDI.UnitTests.TestClasses
         private ClassWithCircularDependency Obj { get; }
         
         public ClassWithDeepCircularDependency(ClassWithCircularDependency obj) => Obj = obj;
-    }
-    
-    internal class TransientImplConfig : WhooshConfiguration
-    {
-        public TransientImplConfig() => Register<ClassWithParameterlessCtor>().AsTransient();
-    }
-    
-    internal class SingletonImplConfig : WhooshConfiguration
-    {
-        public SingletonImplConfig() => Register<ClassWithParameterlessCtor>().AsSingleton();
-    }
-
-    internal class NamedDependenciesConfig : WhooshConfiguration
-    {
-        public NamedDependenciesConfig()
-        {
-            Register<ICar, RenaultCar>().WithName(Cars.Renault);
-            Register<ICar, VolkswagenCar>().WithName(Cars.Volkswagen);
-        }
-    }
-
-    internal class NoNamesConfig : WhooshConfiguration
-    {
-        public NoNamesConfig()
-        {
-            Register<ITransportLayerProtocol, TcpProtocol>();
-            Register<ITransportLayerProtocol, UdpProtocol>();
-        }
     }
 }

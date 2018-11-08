@@ -6,6 +6,8 @@ namespace WhooshDI
 {
     public interface IWhooshConfiguration
     {
+        void Validate();
+        
         List<ImplementationConfiguration> GetConfigurationsForDependency(Type type);
     }
 }
