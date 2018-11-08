@@ -14,6 +14,8 @@ namespace WhooshDI
         
         private readonly Lazy<Dictionary<ImplementationConfiguration, object>> _singletons = 
             new Lazy<Dictionary<ImplementationConfiguration, object>>();
+        
+        private readonly object _syncRoot = new object();
 
         private readonly Stack<Type> _trace = new Stack<Type>();
 
@@ -30,7 +32,10 @@ namespace WhooshDI
 
         public T Resolve<T>()
         {
-            return (T)GetInstance(typeof(T));
+            lock (_syncRoot)
+            {
+                return (T)GetInstance(typeof(T));
+            }
         }
 
         public T Resolve<T>(object name)
@@ -47,7 +52,10 @@ namespace WhooshDI
 
             var namedImplConfig = GetNamedImplementationConfiguration(typeof(T), name);
 
-            return (T)GetInstance(typeof(T), namedImplConfig);
+            lock (_syncRoot)
+            {
+                return (T)GetInstance(typeof(T), namedImplConfig);
+            }
         }
         
         private object GetInstance(Type type)
