@@ -10,7 +10,7 @@ namespace WhooshDI
 {
     public class Whoosh : IWhooshContainer
     {
-        private readonly WhooshConfiguration _configuration;
+        private readonly IWhooshConfiguration _configuration;
         
         private readonly Dictionary<ImplementationConfiguration, object> _singletons = 
             new Dictionary<ImplementationConfiguration, object>();
@@ -23,7 +23,7 @@ namespace WhooshDI
         {
         }
 
-        public Whoosh(WhooshConfiguration configuration)
+        public Whoosh(IWhooshConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             
