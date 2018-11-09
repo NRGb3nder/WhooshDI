@@ -14,14 +14,14 @@ namespace WhooshDI.Syntax
             
         public ConfigurationBuilder AsSingleton()
         {
-            _config.Lifestyle = Lifestyle.Singleton;
+            _config.IsSingleton = true;
         
             return this;
         }
 
         public ConfigurationBuilder AsTransient()
         {
-            _config.Lifestyle = Lifestyle.Transient;
+            _config.IsSingleton = false;
 
             return this;
         }

@@ -60,8 +60,7 @@ namespace WhooshDI
         {
             var newConfig = new ImplementationConfiguration()
             {
-                ImplementationType = typeof(TImplementation),
-                Lifestyle = Lifestyle.Transient
+                ImplementationType = typeof(TImplementation)
             };
             
             RegisterImplementation(typeof(TDependency), newConfig);
@@ -73,8 +72,7 @@ namespace WhooshDI
         {
             var newConfig = new ImplementationConfiguration()
             {
-                ImplementationType = typeof(T),
-                Lifestyle = Lifestyle.Transient
+                ImplementationType = typeof(T)
             };
             
             RegisterImplementation(typeof(T), newConfig);

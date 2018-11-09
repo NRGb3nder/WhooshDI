@@ -197,7 +197,7 @@ namespace WhooshDI
 
         private object TryGetInstanceIfSingleton(ImplementationConfiguration implConfig)
         {
-            if (implConfig == null || implConfig.Lifestyle != Lifestyle.Singleton)
+            if (implConfig == null || implConfig.IsSingleton != true)
             {
                 return null;
             } 
@@ -207,7 +207,7 @@ namespace WhooshDI
 
         private void SaveInstanceIfSingleton(ImplementationConfiguration implConfig, object instance)
         {
-            if (implConfig != null && implConfig.Lifestyle == Lifestyle.Singleton)
+            if (implConfig != null && implConfig.IsSingleton == true)
             {
                 _singletons.Add(implConfig, instance);
             }
