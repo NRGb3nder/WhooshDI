@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 using WhooshDI.Exceptions;
@@ -79,7 +80,7 @@ namespace WhooshDI.UnitTests
         }
         
         [Test]
-        public void NamesCouldBeProvidedInParameterAttributes()
+        public void AllowsNamesInParameterAttributes()
         {
             var config = new NamedDependenciesConfig();
             var whoosh = new Whoosh(config);
@@ -87,6 +88,30 @@ namespace WhooshDI.UnitTests
             var instance = whoosh.Resolve<CarService>();
 
             instance.Car.Should().BeOfType<VolkswagenCar>();
+        }
+
+        [Test]
+        public void ResolvesAllRegisteredImplementationsInIEnumerable()
+        {
+            var config = new TransportProtocolsConfig();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<IEnumerable<ITransportLayerProtocol>>();
+
+            instance.Should().Contain(i => i.GetType() == typeof(TcpProtocol))
+                .And.Subject.Should().Contain(i => i.GetType() == typeof(UdpProtocol));
+        }
+
+        [Test]
+        public void ResolvesAllRegisteredImplementationsInDeepHiddenIEnumerable()
+        {
+            var config = new TransportProtocolsConfig();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<SessionLayerService>();
+
+            instance.TransportLayerProtocols.Should().Contain(i => i.GetType() == typeof(TcpProtocol))
+                .And.Subject.Should().Contain(i => i.GetType() == typeof(UdpProtocol));
         }
 
         [Test]
@@ -117,6 +142,15 @@ namespace WhooshDI.UnitTests
 
             Action act = () => whoosh.Resolve<ITransportLayerProtocol>();
                 
+            act.Should().Throw<InvalidOperationException>();
+        }
+        
+        [Test]
+        public void ThrowsInvalidOperationExceptionWhenResolvingRegisteredDependencyWithUnregisteredName()
+        {
+            var config = new NoNamesConfig();
+            var whoosh = new Whoosh(config);
+            Action act = () => whoosh.Resolve<ITransportLayerProtocol>("TCP");
             act.Should().Throw<InvalidOperationException>();
         }
     }

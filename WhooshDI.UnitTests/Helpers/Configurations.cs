@@ -10,6 +10,15 @@ namespace WhooshDI.UnitTests.Helpers
         public SingletonImplConfig() => Register<ClassWithParameterlessCtor>().AsSingleton();
     }
 
+    internal class TransportProtocolsConfig : WhooshConfiguration
+    {
+        public TransportProtocolsConfig()
+        {
+            Register<ITransportLayerProtocol, TcpProtocol>().WithName("TCP");
+            Register<ITransportLayerProtocol, UdpProtocol>().WithName("UDP");
+        }
+    }
+
     internal class NamedDependenciesConfig : WhooshConfiguration
     {
         public NamedDependenciesConfig()

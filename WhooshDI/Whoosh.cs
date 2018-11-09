@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -66,6 +67,11 @@ namespace WhooshDI
         
         private object GetInstance(Type type)
         {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                return GetAllImplementationsCollection(type);
+            }
+            
             var implConfig = _configuration != null ? GetImplementationConfiguration(type) : null;
 
             return GetInstance(type, implConfig);
@@ -76,7 +82,7 @@ namespace WhooshDI
             if (_trace.Contains(type))
             {
                 throw new CircularDependencyException(
-                    $"Circular dependency detected:\n{string.Join(" in\n", _trace.Select(e => e.FullName).ToArray())}");
+                    $"Circular dependency detected:\n{string.Join(" in\n", _trace.Select(e => e.FullName).ToArray())}.");
             }
             
             _trace.Push(type);
@@ -90,7 +96,7 @@ namespace WhooshDI
             var typeToInstantiate = implConfig != null ? implConfig.ImplementationType : type;
 
             var constructor = GetConstructorWithLongestParameterList(typeToInstantiate)
-                ?? throw new InvalidOperationException($"Could not instantiate type: {typeToInstantiate.FullName}");
+                ?? throw new InvalidOperationException($"Could not instantiate type: {typeToInstantiate.FullName}.");
             var arguments = GetConstructorArguments(constructor);
             
             instance = Activator.CreateInstance(typeToInstantiate, arguments);
@@ -135,9 +141,38 @@ namespace WhooshDI
         private ImplementationConfiguration GetImplementationConfiguration(Type type)
         {
             var implConfigs = _configuration.GetConfigurationsForDependency(type);
+
+            if (implConfigs == null)
+            {
+                return null;
+            }
+
+            if (implConfigs.Count > 1)
+            {
+                throw new InvalidOperationException(
+                    $"Ambiguity in dependency resolution: multiple implementations for {type.FullName}.");
+            }
             
-            return implConfigs == null ? null
-                : implConfigs.Where(c => c.ImplementationType == type)?.First() ?? implConfigs.First();
+            return implConfigs.First();
+        }
+
+        private IEnumerable GetAllImplementationsCollection(Type type)
+        {
+            var genericArgument = type.GenericTypeArguments.First();
+            var implConfigs = _configuration.GetConfigurationsForDependency(genericArgument);
+
+            if (implConfigs == null)
+            {
+                throw new InvalidOperationException($"Dependency {genericArgument.FullName} is not configured.");
+            }
+
+            var allImplementationsInstances = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(genericArgument));
+            foreach (var config in implConfigs)
+            {
+                allImplementationsInstances.Add(GetInstance(genericArgument, config));
+            }
+                
+            return allImplementationsInstances;
         }
 
         private object TryGetInstanceIfSingleton(ImplementationConfiguration implConfig)

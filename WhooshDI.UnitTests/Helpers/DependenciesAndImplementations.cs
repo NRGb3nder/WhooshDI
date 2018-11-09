@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using WhooshDI.Attributes;
 
 namespace WhooshDI.UnitTests.Helpers
@@ -26,6 +27,13 @@ namespace WhooshDI.UnitTests.Helpers
         public CarService([DependencyKey(Cars.Volkswagen)] ICar car) => Car = car;
     }
 
+    internal class CarService<T> where T : ICar
+    {
+        public T Car { get; }
+
+        public CarService(T car) => Car = car;
+    }
+
     internal interface ICar
     {
         string ModelName { get; set; }
@@ -51,6 +59,16 @@ namespace WhooshDI.UnitTests.Helpers
     
     internal class UdpProtocol : ITransportLayerProtocol
     {
+    }
+
+    internal class SessionLayerService
+    {
+        public IEnumerable<ITransportLayerProtocol> TransportLayerProtocols { get; }
+
+        public SessionLayerService(IEnumerable<ITransportLayerProtocol> protocols)
+        {
+            TransportLayerProtocols = protocols;
+        }
     }
 
     internal class ClassWithCircularDependency

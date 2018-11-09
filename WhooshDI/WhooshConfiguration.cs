@@ -29,16 +29,15 @@ namespace WhooshDI
 
                 _dependencyConfigurations[dependency]
                     .GroupBy(c => c.Name)
-                    .Where(c => c.Count() > 1)
+                    .Where(c => c.Key != null && c.Count() > 1)
                     .ToList()
                     .ForEach(group => duplicateNameExceptions.Add(
                         new DuplicateElementException(
-                            group.Key != null
-                                ? $"Duplicate name {group.Key} in implementations of dependency {dependency.FullName}"
-                                : $"Duplicate unnamed implementations of dependency {dependency.FullName}")));
+                            $"Duplicate name {group.Key} in implementations of dependency {dependency.FullName}")));
             });
 
             var exceptions = duplicateImplementationExceptions.Concat(duplicateNameExceptions).ToList();
+            
             switch (exceptions.Count)
             {
                 case 0:
