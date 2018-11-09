@@ -1,36 +1,36 @@
 namespace WhooshDI.UnitTests.Helpers
 {
-    internal class TransientImplConfig : WhooshConfiguration
+    internal class TransientImplementationConfiguration : WhooshConfiguration
     {
-        public TransientImplConfig() => Register<ClassWithParameterlessCtor>().AsTransient();
+        public TransientImplementationConfiguration() => Register<ClassWithParameterlessCtor>().AsTransient();
     }
     
-    internal class SingletonImplConfig : WhooshConfiguration
+    internal class SingletonImplementationConfiguration : WhooshConfiguration
     {
-        public SingletonImplConfig() => Register<ClassWithParameterlessCtor>().AsSingleton();
+        public SingletonImplementationConfiguration() => Register<ClassWithParameterlessCtor>().AsSingleton();
     }
 
-    internal class TransportProtocolsConfig : WhooshConfiguration
+    internal class TransportProtocolsConfiguration : WhooshConfiguration
     {
-        public TransportProtocolsConfig()
+        public TransportProtocolsConfiguration()
         {
             Register<ITransportLayerProtocol, TcpProtocol>().WithName("TCP");
             Register<ITransportLayerProtocol, UdpProtocol>().WithName("UDP");
         }
     }
 
-    internal class NamedDependenciesConfig : WhooshConfiguration
+    internal class ConfigurationWithNamedDependencies : WhooshConfiguration
     {
-        public NamedDependenciesConfig()
+        public ConfigurationWithNamedDependencies()
         {
             Register<ICar, RenaultCar>().WithName(Cars.Renault);
             Register<ICar, VolkswagenCar>().WithName(Cars.Volkswagen);
         }
     }
 
-    internal class NoNamesConfig : WhooshConfiguration
+    internal class ConfigurationWithoutDependencyNames : WhooshConfiguration
     {
-        public NoNamesConfig()
+        public ConfigurationWithoutDependencyNames()
         {
             Register<ITransportLayerProtocol, TcpProtocol>();
             Register<ITransportLayerProtocol, UdpProtocol>();
@@ -42,7 +42,7 @@ namespace WhooshDI.UnitTests.Helpers
         public ConfigurationWithDuplicateImplementations()
         {
             Register<ITransportLayerProtocol, TcpProtocol>();
-            Register<ITransportLayerProtocol, TcpProtocol>();
+            Register<ITransportLayerProtocol, TcpProtocol>().WithName("Definitely a TCP");
         }
     }
 

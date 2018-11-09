@@ -47,7 +47,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void AllowsTransientDependencies()
         {
-            var config = new TransientImplConfig();
+            var config = new TransientImplementationConfiguration();
             var whoosh = new Whoosh(config);
 
             var instance = whoosh.Resolve<ClassWithParameterlessCtor>();
@@ -70,7 +70,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void AllowsSingletonDependencies()
         {
-            var config = new SingletonImplConfig();
+            var config = new SingletonImplementationConfiguration();
             var whoosh = new Whoosh(config);
 
             var instance = whoosh.Resolve<ClassWithParameterlessCtor>();
@@ -82,7 +82,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void AllowsNamesInParameterAttributes()
         {
-            var config = new NamedDependenciesConfig();
+            var config = new ConfigurationWithNamedDependencies();
             var whoosh = new Whoosh(config);
 
             var instance = whoosh.Resolve<CarService>();
@@ -103,7 +103,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void ResolvesAllRegisteredImplementationsInIEnumerable()
         {
-            var config = new TransportProtocolsConfig();
+            var config = new TransportProtocolsConfiguration();
             var whoosh = new Whoosh(config);
 
             var instance = whoosh.Resolve<IEnumerable<ITransportLayerProtocol>>();
@@ -115,7 +115,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void ResolvesAllRegisteredImplementationsInDeepHiddenIEnumerable()
         {
-            var config = new TransportProtocolsConfig();
+            var config = new TransportProtocolsConfiguration();
             var whoosh = new Whoosh(config);
 
             var instance = whoosh.Resolve<SessionLayerService>();
@@ -147,7 +147,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void ThrowsInvalidOperationExceptionWhenResolvingUnregisteredDependencyWithName()
         {
-            var config = new TransientImplConfig();
+            var config = new TransientImplementationConfiguration();
             var whoosh = new Whoosh(config);
 
             Action act = () => whoosh.Resolve<ITransportLayerProtocol>();
@@ -158,7 +158,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void ThrowsInvalidOperationExceptionWhenResolvingRegisteredDependencyWithUnregisteredName()
         {
-            var config = new NoNamesConfig();
+            var config = new ConfigurationWithoutDependencyNames();
             var whoosh = new Whoosh(config);
             Action act = () => whoosh.Resolve<ITransportLayerProtocol>("TCP");
             act.Should().Throw<InvalidOperationException>();
@@ -171,7 +171,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void AllowsNamedDependencies()
         {
-            var config = new NamedDependenciesConfig();
+            var config = new ConfigurationWithNamedDependencies();
             var whoosh = new Whoosh(config);
 
             var instance = whoosh.Resolve<ICar>(Cars.Volkswagen);
@@ -182,7 +182,7 @@ namespace WhooshDI.UnitTests
         [Test]
         public void ThrowsArgumentNullExceptionWhenNameIsNull()
         {
-            var config = new NamedDependenciesConfig();
+            var config = new ConfigurationWithNamedDependencies();
             var whoosh = new Whoosh(config);
 
             Action act = () => whoosh.Resolve<ICar>(null);
