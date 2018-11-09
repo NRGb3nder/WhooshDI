@@ -89,6 +89,16 @@ namespace WhooshDI.UnitTests
 
             instance.Car.Should().BeOfType<VolkswagenCar>();
         }
+        
+        [Test]
+        public void AllowsGenericDependencies()
+        {
+            var whoosh = new Whoosh();
+
+            var instance = whoosh.Resolve<CarService<RenaultCar>>();
+
+            instance.Should().BeOfType<CarService<RenaultCar>>();
+        }
 
         [Test]
         public void ResolvesAllRegisteredImplementationsInIEnumerable()
