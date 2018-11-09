@@ -20,6 +20,21 @@ namespace WhooshDI.UnitTests.Helpers
         Volkswagen
     }
 
+    internal interface ICar
+    {
+        string ModelName { get; set; }
+    }
+
+    internal class RenaultCar : ICar
+    {
+        public string ModelName { get; set; } = "Logan";
+    }
+
+    internal class VolkswagenCar : ICar
+    {
+        public string ModelName { get; set; } = "Polo";
+    }
+    
     internal class CarService
     {
         public ICar Car { get; }
@@ -34,19 +49,16 @@ namespace WhooshDI.UnitTests.Helpers
         public CarService(T car) => Car = car;
     }
 
-    internal interface ICar
+    internal class TaxiDriver
     {
-        string ModelName { get; set; }
+        [WhooshResolve]
+        public ICar Car { get; set; }
     }
 
-    internal class RenaultCar : ICar
+    internal class IncorrectlyDefinedTaxiDriver
     {
-        public string ModelName { get; set; } = "Logan";
-    }
-
-    internal class VolkswagenCar : ICar
-    {
-        public string ModelName { get; set; } = "Polo";
+        [WhooshResolve]
+        public ICar Car { get; }
     }
 
     internal interface ITransportLayerProtocol

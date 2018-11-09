@@ -19,6 +19,11 @@ namespace WhooshDI.UnitTests.Helpers
         }
     }
 
+    internal class TaxiConfiguration : WhooshConfiguration
+    {
+        public TaxiConfiguration() => Register<ICar, RenaultCar>();
+    }
+
     internal class ConfigurationWithNamedDependencies : WhooshConfiguration
     {
         public ConfigurationWithNamedDependencies()

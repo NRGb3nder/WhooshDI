@@ -125,6 +125,17 @@ namespace WhooshDI.UnitTests
         }
 
         [Test]
+        public void ResolvesDependenciesInPropertiesMarkedWithWhooshResolveAttribute()
+        {
+            var config = new TaxiConfiguration();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<TaxiDriver>();
+
+            instance.Car.Should().BeOfType<RenaultCar>();
+        }
+
+        [Test]
         public void ThrowsCircularDependencyExceptionWhenCircularDependencyDetected()
         {
             var whoosh = new Whoosh();
@@ -160,7 +171,20 @@ namespace WhooshDI.UnitTests
         {
             var config = new ConfigurationWithoutDependencyNames();
             var whoosh = new Whoosh(config);
+            
             Action act = () => whoosh.Resolve<ITransportLayerProtocol>("TCP");
+            
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void ThrowsInvalidOperationExceptionWhenPropertyWithDependencyHasNoAccessibleSetter()
+        {
+            var config = new TaxiConfiguration();
+            var whoosh = new Whoosh(config);
+
+            Action act = () => whoosh.Resolve<IncorrectlyDefinedTaxiDriver>();
+
             act.Should().Throw<InvalidOperationException>();
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Force.DeepCloner;
@@ -101,6 +102,8 @@ namespace WhooshDI
             
             instance = Activator.CreateInstance(typeToInstantiate, arguments);
 
+            ResolvePropertyDependencies(type, instance);
+
             SaveInstanceIfSingleton(implConfig, instance);
 
             _trace.Pop();
@@ -173,6 +176,23 @@ namespace WhooshDI
             }
                 
             return allImplementationsInstances;
+        }
+
+        private void ResolvePropertyDependencies(Type type, object instance)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                if (property.GetCustomAttributes<WhooshResolveAttribute>().FirstOrDefault() != null)
+                {
+                    if (property.GetSetMethod() == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Property {property.Name} of {type.FullName} does not have accessible setter.");
+                    }
+                    
+                    property.SetValue(instance, GetInstance(property.PropertyType));
+                }
+            }
         }
 
         private object TryGetInstanceIfSingleton(ImplementationConfiguration implConfig)
