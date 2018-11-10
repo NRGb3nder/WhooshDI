@@ -19,6 +19,12 @@ namespace WhooshDI
     /// </summary>
     public class Whoosh : IWhooshContainer
     {
+        // TODO: Lists -> collection interface
+        // TODO: Conditions
+        // TODO: Scoped singleton and transient dependencies
+        // TODO: User-created instance
+        // TODO: Collections
+        // TODO: null checks -> aspect (CastleCore)
         private readonly IWhooshConfiguration _configuration;
         
         private readonly Dictionary<ImplementationConfiguration, object> _singletons = 

@@ -31,7 +31,7 @@ namespace WhooshDI
                     .Where(c => c.Count() > 1)
                     .Select(group => new DuplicateElementException(
                         ExceptionMessages.DuplicateElementExceptionDuplicateImplementation
-                            .Replace("{implementation}", @group.Key.FullName)
+                            .Replace("{implementation}", group.Key.FullName)
                             .Replace("{dependency}", dependency.FullName))));
 
                 duplicateNameExceptions.AddRange(_dependencyConfigurations[dependency]
