@@ -24,6 +24,11 @@ namespace WhooshDI.UnitTests.Helpers
         public TaxiConfiguration() => Register<ICar, RenaultCar>();
     }
 
+    internal class TaxiConfigurationThatUsesNonGenericRegistrationMethod : WhooshConfiguration
+    {
+        public TaxiConfigurationThatUsesNonGenericRegistrationMethod() => Register(typeof(ICar), typeof(RenaultCar));
+    }
+
     internal class ConfigurationWithNamedDependencies : WhooshConfiguration
     {
         public ConfigurationWithNamedDependencies()
@@ -70,5 +75,32 @@ namespace WhooshDI.UnitTests.Helpers
             Register<ICar, RenaultCar>().WithName("Car");
             Register<ICar, VolkswagenCar>().WithName("Car");
         }
+    }
+
+    internal class ConfigurationWithOpenGenericsRegistration : WhooshConfiguration
+    {
+        public ConfigurationWithOpenGenericsRegistration() => 
+            Register(typeof(IService<>), typeof(ServiceImplementation<>));
+    }
+
+    internal class ConfigurationWithNullDependencyType : WhooshConfiguration
+    {
+        public ConfigurationWithNullDependencyType() => Register(null, typeof(RenaultCar));
+    }
+    
+    internal class ConfigurationWithNullImplementationType : WhooshConfiguration
+    {
+        public ConfigurationWithNullImplementationType() => Register(typeof(ICar), null);
+    }
+
+    internal class ConfigurationWithValueTypeDependency : WhooshConfiguration
+    {
+        public ConfigurationWithValueTypeDependency() => Register(typeof(int), typeof(int));
+    }
+    
+    internal class ConfigurationWithImplementationTypeThatIsNotAssignableToDependencyType : WhooshConfiguration
+    {
+        public ConfigurationWithImplementationTypeThatIsNotAssignableToDependencyType() => 
+            Register(typeof(ICar), typeof(TcpProtocol));
     }
 }

@@ -73,6 +73,20 @@ namespace WhooshDI.UnitTests.Helpers
     {
     }
 
+    internal interface IService<T>
+    {
+        T Repository { get; set; }
+    }
+
+    internal class ServiceImplementation<T> : IService<T>
+    {
+        public T Repository { get; set; }
+    }
+
+    internal class SqlServerRepository
+    {
+    }
+
     internal class SessionLayerService
     {
         public IEnumerable<ITransportLayerProtocol> TransportLayerProtocols { get; }

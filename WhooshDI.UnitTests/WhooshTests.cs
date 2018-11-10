@@ -101,6 +101,17 @@ namespace WhooshDI.UnitTests
         }
 
         [Test]
+        public void AllowsConfigurationWithNonGenericRegistrations()
+        {
+            var config = new TaxiConfigurationThatUsesNonGenericRegistrationMethod();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<ICar>();
+
+            instance.Should().BeOfType<RenaultCar>();
+        }
+
+        [Test]
         public void ResolvesAllRegisteredImplementationsInIEnumerable()
         {
             var config = new TransportProtocolsConfiguration();
@@ -133,6 +144,18 @@ namespace WhooshDI.UnitTests
             var instance = whoosh.Resolve<TaxiDriver>();
 
             instance.Car.Should().BeOfType<RenaultCar>();
+        }
+
+
+        [Test]
+        public void ResolvesDependenciesThatAreRegisteredUsingOpenGenerics()
+        {
+            var config = new ConfigurationWithOpenGenericsRegistration();
+            var whoosh = new Whoosh(config);
+
+            var instance = whoosh.Resolve<IService<SqlServerRepository>>();
+
+            instance.Should().BeOfType<ServiceImplementation<SqlServerRepository>>();
         }
 
         [Test]

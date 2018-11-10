@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Force.DeepCloner;
@@ -72,8 +71,12 @@ namespace WhooshDI
             {
                 return GetAllImplementationsCollection(type);
             }
-            
-            var implConfig = _configuration != null ? GetImplementationConfiguration(type) : null;
+
+            var implConfig = GetImplementationConfiguration(type);
+            if (implConfig == null && type.IsGenericType)
+            {
+                implConfig = GetImplementationConfiguration(type.GetGenericTypeDefinition());
+            }
 
             return GetInstance(type, implConfig);
         }
@@ -95,6 +98,11 @@ namespace WhooshDI
             }
 
             var typeToInstantiate = implConfig != null ? implConfig.ImplementationType : type;
+
+            if (typeToInstantiate.IsGenericTypeDefinition)
+            {
+                typeToInstantiate = typeToInstantiate.MakeGenericType(type.GenericTypeArguments);
+            }
 
             var constructor = GetConstructorWithLongestParameterList(typeToInstantiate)
                 ?? throw new InvalidOperationException($"Could not instantiate type: {typeToInstantiate.FullName}.");
@@ -143,7 +151,7 @@ namespace WhooshDI
 
         private ImplementationConfiguration GetImplementationConfiguration(Type type)
         {
-            var implConfigs = _configuration.GetConfigurationsForDependency(type);
+            var implConfigs = _configuration?.GetConfigurationsForDependency(type);
 
             if (implConfigs == null)
             {

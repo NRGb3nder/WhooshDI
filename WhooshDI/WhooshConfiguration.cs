@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WhooshDI.Configuration;
 using WhooshDI.Exceptions;
+using WhooshDI.Internal;
 using WhooshDI.Syntax;
 
 namespace WhooshDI
@@ -58,7 +59,7 @@ namespace WhooshDI
             where TDependency : class
             where TImplementation : TDependency
         {
-            var newConfig = new ImplementationConfiguration()
+            var newConfig = new ImplementationConfiguration
             {
                 ImplementationType = typeof(TImplementation)
             };
@@ -70,13 +71,46 @@ namespace WhooshDI
 
         protected ConfigurationBuilder Register<T>() where T : class
         {
-            var newConfig = new ImplementationConfiguration()
+            var newConfig = new ImplementationConfiguration
             {
                 ImplementationType = typeof(T)
             };
             
             RegisterImplementation(typeof(T), newConfig);
 
+            return new ConfigurationBuilder(newConfig);
+        }
+
+        protected ConfigurationBuilder Register(Type dependency, Type implementation)
+        {
+            if (dependency == null)
+            {
+                throw new ArgumentNullException(nameof(dependency));
+            }
+
+            if (implementation == null)
+            {
+                throw new ArgumentNullException(nameof(implementation));
+            }
+
+            if (dependency.IsValueType)
+            {
+                throw new ArgumentException($"{dependency.FullName} is not a reference type.");
+            }
+
+            if (!dependency.IsAssignableFrom(implementation) && !implementation.IsAssignableToGenericType(dependency))
+            {
+                throw new ArgumentException(
+                    $"{implementation.FullName} can not implement a {dependency.FullName}.");
+            }
+            
+            var newConfig = new ImplementationConfiguration
+            {
+                ImplementationType = implementation
+            };
+            
+            RegisterImplementation(dependency, newConfig);
+            
             return new ConfigurationBuilder(newConfig);
         }
         
