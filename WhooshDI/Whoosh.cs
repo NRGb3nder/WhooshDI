@@ -7,9 +7,16 @@ using Force.DeepCloner;
 using WhooshDI.Attributes;
 using WhooshDI.Configuration;
 using WhooshDI.Exceptions;
+using WhooshDI.Resources;
 
 namespace WhooshDI
 {
+    /// <inheritdoc/>
+    /// <summary>
+    /// Simple dependency injection container with separated configuration that supports
+    /// Transient and Singleton dependency lifestyles, constructor and property injection types,
+    /// named dependencies and open generic dependencies.
+    /// </summary>
     public class Whoosh : IWhooshContainer
     {
         private readonly IWhooshConfiguration _configuration;
@@ -21,10 +28,18 @@ namespace WhooshDI
 
         private readonly Stack<Type> _trace = new Stack<Type>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Whoosh"/> container.
+        /// </summary>
         public Whoosh()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Whoosh"/> container.
+        /// </summary>
+        /// <param name="configuration">An <see cref="IWhooshConfiguration"/> object with resolution rules</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="configuration"/> is <c>null</c></exception>
         public Whoosh(IWhooshConfiguration configuration)
         {
             if (configuration == null)
@@ -54,7 +69,7 @@ namespace WhooshDI
 
             if (_configuration == null)
             {
-                throw new InvalidOperationException("Configuration for container is not provided.");
+                throw new InvalidOperationException(ExceptionMessages.InvalidOperationExceptionNoConfiguration);
             }
 
             var namedImplConfig = GetNamedImplementationConfiguration(typeof(T), name);
@@ -86,7 +101,8 @@ namespace WhooshDI
             if (_trace.Contains(type))
             {
                 throw new CircularDependencyException(
-                    $"Circular dependency detected:\n{string.Join(" in\n", _trace.Select(e => e.FullName).ToArray())}.");
+                    ExceptionMessages.CircularDependencyExceptionIsDetected
+                        .Replace("{trace}", string.Join(" in\n", _trace.Select(e => e.FullName).ToArray())));
             }
             
             _trace.Push(type);
@@ -105,7 +121,8 @@ namespace WhooshDI
             }
 
             var constructor = GetConstructorWithLongestParameterList(typeToInstantiate)
-                ?? throw new InvalidOperationException($"Could not instantiate type: {typeToInstantiate.FullName}.");
+                ?? throw new InvalidOperationException(ExceptionMessages.InvalidOperationExceptionCantInstantiateType
+                    .Replace("{type}", typeToInstantiate.FullName));
             var arguments = GetConstructorArguments(constructor);
             
             instance = Activator.CreateInstance(typeToInstantiate, arguments);
@@ -142,11 +159,14 @@ namespace WhooshDI
         private ImplementationConfiguration GetNamedImplementationConfiguration(Type type, object name)
         {
             var implConfigs = _configuration.GetConfigurationsForDependency(type) 
-                ?? throw new InvalidOperationException($"Dependency {type.FullName} is not configured.");
+                ?? throw new InvalidOperationException(ExceptionMessages.InvalidOperationExceptionDependencyNotConfigured
+                    .Replace("{dependency}", type.FullName));
 
             return implConfigs.FirstOrDefault(c => c.Name != null && c.Name.Equals(name))
                 ?? throw new InvalidOperationException(
-                    $"Dependency {type.FullName} does not have implementation with name {name}.");
+                    ExceptionMessages.InvalidOperationExceptionNoImplementationWithSuchName
+                        .Replace("{dependency}", type.FullName)
+                        .Replace("{name}", name.ToString()));
         }
 
         private ImplementationConfiguration GetImplementationConfiguration(Type type)
@@ -161,7 +181,8 @@ namespace WhooshDI
             if (implConfigs.Count > 1)
             {
                 throw new InvalidOperationException(
-                    $"Ambiguity in dependency resolution: multiple implementations for {type.FullName}.");
+                    ExceptionMessages.InvalidOperationExceptionAmbiguityInDependencyResolution
+                        .Replace("{dependency}", type.FullName));
             }
             
             return implConfigs.First();
@@ -174,7 +195,9 @@ namespace WhooshDI
 
             if (implConfigs == null)
             {
-                throw new InvalidOperationException($"Dependency {genericArgument.FullName} is not configured.");
+                throw new InvalidOperationException(
+                    ExceptionMessages.InvalidOperationExceptionDependencyNotConfigured
+                        .Replace("{dependency}", genericArgument.FullName));
             }
 
             var allImplementationsInstances = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(genericArgument));
@@ -195,7 +218,9 @@ namespace WhooshDI
                     if (property.GetSetMethod() == null)
                     {
                         throw new InvalidOperationException(
-                            $"Property {property.Name} of {type.FullName} does not have accessible setter.");
+                            ExceptionMessages.InvalidOperationExceptionPropertySetterNotAccessible
+                                .Replace("{property}", property.Name)
+                                .Replace("{type}", type.FullName));
                     }
                     
                     property.SetValue(instance, GetInstance(property.PropertyType));

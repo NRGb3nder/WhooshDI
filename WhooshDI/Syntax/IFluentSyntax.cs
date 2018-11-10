@@ -3,6 +3,9 @@ using System.ComponentModel;
 
 namespace WhooshDI.Syntax
 {
+    /// <summary>
+    /// Interface that hides object methods of its implementations from IntelliSense.
+    /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public interface IFluentSyntax
     {

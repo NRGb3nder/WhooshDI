@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ArgumentExceptionNotAReferenceType" xml:space="preserve">
+    <value>{type} is not a reference type.</value>
+  </data>
+  <data name="ArgumentExceptionTypeIsNotAssignable" xml:space="preserve">
+    <value>{firstType} is not assignable to {secondType}.</value>
+  </data>
+  <data name="CircularDependencyExceptionIsDetected" xml:space="preserve">
+    <value>Circular dependency detected:\n{trace}.</value>
+  </data>
+  <data name="DuplicateElementExceptionDuplicateImplementation" xml:space="preserve">
+    <value>Duplicate implementation {implementation} of dependency {dependency}.</value>
+  </data>
+  <data name="DuplicateElementExceptionDuplicateImplementationName" xml:space="preserve">
+    <value>Duplicate name {name} in implementations of dependency {dependency}.</value>
+  </data>
+  <data name="InvalidOperationExceptionAmbiguityInDependencyResolution" xml:space="preserve">
+    <value>Ambiguity in dependency resolution: multiple implementations for {dependency}.</value>
+  </data>
+  <data name="InvalidOperationExceptionCantInstantiateType" xml:space="preserve">
+    <value>Can't instantiate type: {type}.</value>
+  </data>
+  <data name="InvalidOperationExceptionDependencyNotConfigured" xml:space="preserve">
+    <value>Dependency {dependency} is not configured.</value>
+  </data>
+  <data name="InvalidOperationExceptionNoConfiguration" xml:space="preserve">
+    <value>Configuration for container is not provided.</value>
+  </data>
+  <data name="InvalidOperationExceptionNoImplementationWithSuchName" xml:space="preserve">
+    <value>Dependency {dependency} does not have implementation with name {name}.</value>
+  </data>
+  <data name="InvalidOperationExceptionPropertySetterNotAccessible" xml:space="preserve">
+    <value>Property {property} of {type} does not have accessible setter.</value>
+  </data>
+</root>

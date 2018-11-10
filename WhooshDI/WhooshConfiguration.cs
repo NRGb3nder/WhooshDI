@@ -5,9 +5,15 @@ using WhooshDI.Configuration;
 using WhooshDI.Exceptions;
 using WhooshDI.Internal;
 using WhooshDI.Syntax;
+using WhooshDI.Resources;
 
 namespace WhooshDI
 {
+    /// <inheritdoc/>
+    /// <summary>
+    /// Abstract configuration that provides resolution rules definition methods for derived configurations.
+    /// </summary>
+    /// <remarks>User-defined container configurations should inherit from this type.</remarks>
     public abstract class WhooshConfiguration : IWhooshConfiguration
     {
         private readonly Dictionary<Type, List<ImplementationConfiguration>> _dependencyConfigurations = 
@@ -18,24 +24,24 @@ namespace WhooshDI
             var duplicateImplementationExceptions = new List<DuplicateElementException>();
             var duplicateNameExceptions = new List<DuplicateElementException>();
 
-            _dependencyConfigurations.Keys.ToList().ForEach(dependency =>
+            foreach (var dependency in _dependencyConfigurations.Keys)
             {
-                _dependencyConfigurations[dependency]
+                duplicateImplementationExceptions.AddRange(_dependencyConfigurations[dependency]
                     .GroupBy(c => c.ImplementationType)
                     .Where(c => c.Count() > 1)
-                    .ToList()
-                    .ForEach(group => duplicateImplementationExceptions.Add(
-                        new DuplicateElementException(
-                            $"Duplicate implementation {group.Key.FullName} of dependency {dependency.FullName}")));
+                    .Select(group => new DuplicateElementException(
+                        ExceptionMessages.DuplicateElementExceptionDuplicateImplementation
+                            .Replace("{implementation}", @group.Key.FullName)
+                            .Replace("{dependency}", dependency.FullName))));
 
-                _dependencyConfigurations[dependency]
+                duplicateNameExceptions.AddRange(_dependencyConfigurations[dependency]
                     .GroupBy(c => c.Name)
                     .Where(c => c.Key != null && c.Count() > 1)
-                    .ToList()
-                    .ForEach(group => duplicateNameExceptions.Add(
-                        new DuplicateElementException(
-                            $"Duplicate name {group.Key} in implementations of dependency {dependency.FullName}")));
-            });
+                    .Select(group => new DuplicateElementException(
+                        ExceptionMessages.DuplicateElementExceptionDuplicateImplementationName
+                            .Replace("{name}", group.Key.ToString())
+                            .Replace("{dependency}", dependency.FullName))));
+            }
 
             var exceptions = duplicateImplementationExceptions.Concat(duplicateNameExceptions).ToList();
             
@@ -55,6 +61,12 @@ namespace WhooshDI
             return _dependencyConfigurations.TryGetValue(type, out var configuration) ? configuration : null;
         }
 
+        /// <summary>
+        /// Registers a new implementation for a dependency.
+        /// </summary>
+        /// <typeparam name="TDependency">A dependency to resolve</typeparam>
+        /// <typeparam name="TImplementation">An implementation for a dependency</typeparam>
+        /// <returns></returns>
         protected ConfigurationBuilder Register<TDependency, TImplementation>() 
             where TDependency : class
             where TImplementation : TDependency
@@ -69,6 +81,11 @@ namespace WhooshDI
             return new ConfigurationBuilder(newConfig);
         }
 
+        /// <summary>
+        /// Registers a new dependency.
+        /// </summary>
+        /// <typeparam name="T">A dependency to configure</typeparam>
+        /// <returns></returns>
         protected ConfigurationBuilder Register<T>() where T : class
         {
             var newConfig = new ImplementationConfiguration
@@ -81,6 +98,14 @@ namespace WhooshDI
             return new ConfigurationBuilder(newConfig);
         }
 
+        /// <summary>
+        /// Registers a new implementation for a dependency.
+        /// </summary>
+        /// <param name="dependency">A dependency to resolve</param>
+        /// <param name="implementation">An implementation for a dependency</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Throws when <paramref name="dependency"/> is <c>null</c></exception>
+        /// <exception cref="ArgumentException">Throws when <paramref name="implementation"/> is <c>null</c></exception>
         protected ConfigurationBuilder Register(Type dependency, Type implementation)
         {
             if (dependency == null)
@@ -95,13 +120,15 @@ namespace WhooshDI
 
             if (dependency.IsValueType)
             {
-                throw new ArgumentException($"{dependency.FullName} is not a reference type.");
+                throw new ArgumentException(ExceptionMessages.ArgumentExceptionNotAReferenceType
+                    .Replace("{type}", dependency.FullName));
             }
 
             if (!dependency.IsAssignableFrom(implementation) && !implementation.IsAssignableToGenericType(dependency))
             {
-                throw new ArgumentException(
-                    $"{implementation.FullName} can not implement a {dependency.FullName}.");
+                throw new ArgumentException(ExceptionMessages.ArgumentExceptionTypeIsNotAssignable
+                    .Replace("{firstType}", implementation.FullName)
+                    .Replace("{secondType}", dependency.FullName));
             }
             
             var newConfig = new ImplementationConfiguration
