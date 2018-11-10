@@ -19,6 +19,6 @@ namespace WhooshDI
         /// </summary>
         /// <param name="type">A type of a dependency.</param>
         /// <returns>A <c>List</c> of <see cref="ImplementationConfiguration"/> for each registered implementation.</returns>
-        List<ImplementationConfiguration> GetConfigurationsForDependency(Type type);
+        ICollection<ImplementationConfiguration> GetConfigurationsForDependency(Type type);
     }
 }

@@ -16,8 +16,8 @@ namespace WhooshDI
     /// <remarks>User-defined container configurations should inherit from this type.</remarks>
     public abstract class WhooshConfiguration : IWhooshConfiguration
     {
-        private readonly Dictionary<Type, List<ImplementationConfiguration>> _dependencyConfigurations = 
-            new Dictionary<Type, List<ImplementationConfiguration>>();
+        private readonly Dictionary<Type, ICollection<ImplementationConfiguration>> _dependencyConfigurations = 
+            new Dictionary<Type, ICollection<ImplementationConfiguration>>();
 
         public void Validate()
         {
@@ -56,7 +56,7 @@ namespace WhooshDI
             }
         }
         
-        public List<ImplementationConfiguration> GetConfigurationsForDependency(Type type)
+        public ICollection<ImplementationConfiguration> GetConfigurationsForDependency(Type type)
         {
             return _dependencyConfigurations.TryGetValue(type, out var configuration) ? configuration : null;
         }

@@ -19,7 +19,6 @@ namespace WhooshDI
     /// </summary>
     public class Whoosh : IWhooshContainer
     {
-        // TODO: Lists -> collection interface
         // TODO: Conditions
         // TODO: Scoped singleton and transient dependencies
         // TODO: User-created instance
