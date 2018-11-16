@@ -21,8 +21,6 @@ namespace WhooshDI
     {
         // TODO: Conditions
         // TODO: Scoped singleton and transient dependencies
-        // TODO: User-created instance
-        // TODO: Collections
         // TODO: null checks -> aspect (CastleCore)
         private readonly IWhooshConfiguration _configuration;
         
@@ -103,6 +101,22 @@ namespace WhooshDI
 
         private object GetInstance(Type type, ImplementationConfiguration implConfig)
         {
+            if (type.GetTypeInfo().IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            
+            if (implConfig?.Instance != null)
+            {
+                return implConfig.Instance;
+            }
+            
+            var instance = TryGetInstanceIfSingleton(implConfig);
+            if (instance != null)
+            {
+                return instance;
+            }
+            
             if (_trace.Contains(type))
             {
                 throw new CircularDependencyException(
@@ -111,12 +125,6 @@ namespace WhooshDI
             }
             
             _trace.Push(type);
-            
-            var instance = TryGetInstanceIfSingleton(implConfig);
-            if (instance != null)
-            {
-                return instance;
-            }
 
             var typeToInstantiate = implConfig != null ? implConfig.ImplementationType : type;
 

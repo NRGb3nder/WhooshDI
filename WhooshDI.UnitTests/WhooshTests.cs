@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using NUnit.Framework;
+using WhooshDI.Configuration;
 using WhooshDI.Exceptions;
 using WhooshDI.UnitTests.Helpers;
 
@@ -101,6 +103,26 @@ namespace WhooshDI.UnitTests
         }
 
         [Test]
+        public void AllowsCollectionDependencies()
+        {
+            var whoosh = new Whoosh();
+
+            var instance = whoosh.Resolve<List>();
+
+            instance.Should().BeOfType<List>();
+        }
+
+        [Test]
+        public void AllowsGenericCollectionDependencies()
+        {
+            var whoosh = new Whoosh();
+
+            var instance = whoosh.Resolve<List<int>>();
+
+            instance.Should().BeOfType<List<int>>();
+        }
+
+        [Test]
         public void AllowsConfigurationWithNonGenericRegistrations()
         {
             var config = new TaxiConfigurationThatUsesNonGenericRegistrationMethod();
@@ -109,6 +131,18 @@ namespace WhooshDI.UnitTests
             var instance = whoosh.Resolve<ICar>();
 
             instance.Should().BeOfType<RenaultCar>();
+        }
+
+        [Test]
+        public void AllowsUserDefinedInstances()
+        {
+            var config = new ConfigurationClassWithUserDefinedInstance();
+            var whoosh = new Whoosh(config);
+
+            var firstResolvedInstance = whoosh.Resolve<ICar>();
+            var secondResolveInstance = whoosh.Resolve<ICar>();
+
+            firstResolvedInstance.Should().Be(secondResolveInstance);
         }
 
         [Test]

@@ -77,6 +77,14 @@ namespace WhooshDI.UnitTests.Helpers
         }
     }
 
+    internal class ConfigurationClassWithUserDefinedInstance : WhooshConfiguration
+    {
+        public ConfigurationClassWithUserDefinedInstance()
+        {
+            Register<ICar>(new RenaultCar());
+        }
+    }
+
     internal class ConfigurationWithOpenGenericsRegistration : WhooshConfiguration
     {
         public ConfigurationWithOpenGenericsRegistration() => 

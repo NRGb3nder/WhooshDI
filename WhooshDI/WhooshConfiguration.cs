@@ -67,7 +67,7 @@ namespace WhooshDI
         /// <typeparam name="TDependency">A dependency to resolve</typeparam>
         /// <typeparam name="TImplementation">An implementation for a dependency</typeparam>
         /// <returns></returns>
-        protected ConfigurationBuilder Register<TDependency, TImplementation>() 
+        protected ConfigurationBuilder Register<TDependency, TImplementation>()
             where TDependency : class
             where TImplementation : TDependency
         {
@@ -95,6 +95,25 @@ namespace WhooshDI
             
             RegisterImplementation(typeof(T), newConfig);
 
+            return new ConfigurationBuilder(newConfig);
+        }
+
+        /// <summary>
+        /// Registers a user-defined instance for a dependency.
+        /// </summary>
+        /// <param name="instance">A user-defined instance to resolve dependency</param>
+        /// <typeparam name="T">A dependency to configure</typeparam>
+        /// <returns></returns>
+        protected ConfigurationBuilder Register<T>(T instance) where T : class
+        {
+            var newConfig = new ImplementationConfiguration()
+            {
+                ImplementationType = typeof(T),
+                Instance = instance
+            };
+            
+            RegisterImplementation(typeof(T), newConfig);
+            
             return new ConfigurationBuilder(newConfig);
         }
 
