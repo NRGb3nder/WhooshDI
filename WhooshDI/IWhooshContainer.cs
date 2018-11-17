@@ -1,9 +1,11 @@
+using System;
+
 namespace WhooshDI
 {
     /// <summary>
     /// Dependency injection container that supports named dependencies.
     /// </summary>
-    public interface IWhooshContainer
+    public interface IWhooshContainer : IDisposable
     {
         /// <summary>
         /// Resolves dependency of a type <typeparamref name="T"/>.

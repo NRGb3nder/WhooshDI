@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using WhooshDI.Attributes;
 
@@ -12,6 +13,16 @@ namespace WhooshDI.UnitTests.Helpers
         public ClassWithParameterlessCtor ClassWithParameterlessCtor { get; }
         
         public ClassWithParameterizedCtor(ClassWithParameterlessCtor obj) => ClassWithParameterlessCtor = obj;
+    }
+
+    internal class DisposableClass : IDisposable
+    {
+        public bool IsDisposed { get; private set; }
+        
+        public void Dispose()
+        {
+            IsDisposed = true;
+        }
     }
     
     internal enum Cars

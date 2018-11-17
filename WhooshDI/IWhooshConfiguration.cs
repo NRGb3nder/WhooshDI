@@ -7,7 +7,7 @@ namespace WhooshDI
     /// <summary>
     /// Configuration for <see cref="Whoosh"/> DI container.
     /// </summary>
-    public interface IWhooshConfiguration
+    public interface IWhooshConfiguration : IDisposable
     {
         /// <summary>
         /// Validates configuration contents.

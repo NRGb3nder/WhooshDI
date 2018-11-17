@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Force.DeepCloner;
 using WhooshDI.Attributes;
 using WhooshDI.Configuration;
@@ -17,15 +18,16 @@ namespace WhooshDI
     /// Transient and Singleton dependency lifestyles, constructor and property injection types,
     /// named dependencies and open generic dependencies.
     /// </summary>
-    public class Whoosh : IWhooshContainer
+    public sealed class Whoosh : IWhooshScope
     {
         // TODO: Conditions
-        // TODO: Scoped singleton and transient dependencies
         // TODO: null checks -> aspect (CastleCore)
         private readonly IWhooshConfiguration _configuration;
         
         private readonly Dictionary<ImplementationConfiguration, object> _singletons = 
             new Dictionary<ImplementationConfiguration, object>();
+        
+        private readonly List<object> _instancesInScope = new List<object>();
         
         private readonly object _syncRoot = new object();
 
@@ -55,6 +57,8 @@ namespace WhooshDI
             _configuration = configuration.DeepClone();
         }
 
+        public IWhooshScope BeginScope() => _configuration != null ? new Whoosh(_configuration) : new Whoosh();
+
         public T Resolve<T>()
         {
             lock (_syncRoot)
@@ -81,6 +85,21 @@ namespace WhooshDI
             {
                 return (T)GetInstance(typeof(T), namedImplConfig);
             }
+        }
+        
+        public void Dispose()
+        {
+            foreach (var singleton in _singletons.Values)
+            {
+                (singleton as IDisposable)?.Dispose();
+            }
+
+            foreach (var instance in _instancesInScope)
+            {
+                (instance as IDisposable)?.Dispose();
+            }
+
+            _configuration?.Dispose();
         }
         
         private object GetInstance(Type type)
@@ -142,10 +161,11 @@ namespace WhooshDI
 
             ResolvePropertyDependencies(type, instance);
 
-            SaveInstanceIfSingleton(implConfig, instance);
+            RememberInstanceIfSingleton(implConfig, instance);
 
             _trace.Pop();
 
+            RememberInstance(instance);
             return instance;
         }
 
@@ -213,7 +233,8 @@ namespace WhooshDI
                         .Replace("{dependency}", genericArgument.FullName));
             }
 
-            var allImplementationsInstances = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(genericArgument));
+            var allImplementationsInstances = (IList)Activator
+                .CreateInstance(typeof(List<>).MakeGenericType(genericArgument));
             foreach (var config in implConfigs)
             {
                 allImplementationsInstances.Add(GetInstance(genericArgument, config));
@@ -243,7 +264,7 @@ namespace WhooshDI
 
         private object TryGetInstanceIfSingleton(ImplementationConfiguration implConfig)
         {
-            if (implConfig == null || implConfig.IsSingleton != true)
+            if (implConfig == null || !implConfig.IsSingleton)
             {
                 return null;
             } 
@@ -251,19 +272,20 @@ namespace WhooshDI
             return _singletons.TryGetValue(implConfig, out var singleton) ? singleton : null;
         }
 
-        private void SaveInstanceIfSingleton(ImplementationConfiguration implConfig, object instance)
+        private void RememberInstance(object instance) => 
+            _instancesInScope.Add(instance);
+
+        private void RememberInstanceIfSingleton(ImplementationConfiguration implConfig, object instance)
         {
-            if (implConfig != null && implConfig.IsSingleton == true)
+            if (implConfig != null && implConfig.IsSingleton)
             {
                 _singletons.Add(implConfig, instance);
             }
         }
         
-        private static ConstructorInfo GetConstructorWithLongestParameterList(Type type)
-        {
-            return type.GetConstructors()
+        private static ConstructorInfo GetConstructorWithLongestParameterList(Type type) => 
+            type.GetConstructors()
                 .OrderByDescending(c => c.GetParameters().Length)
                 .FirstOrDefault();
-        }
     }
 }

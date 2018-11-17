@@ -60,6 +60,17 @@ namespace WhooshDI
         {
             return _dependencyConfigurations.TryGetValue(type, out var configuration) ? configuration : null;
         }
+        
+        public void Dispose()
+        {
+            foreach (var configs in _dependencyConfigurations.Values)
+            {
+                foreach (var config in configs)
+                {
+                    (config.Instance as IDisposable)?.Dispose();
+                }
+            }
+        }
 
         /// <summary>
         /// Registers a new implementation for a dependency.

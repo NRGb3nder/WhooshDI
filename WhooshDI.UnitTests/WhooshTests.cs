@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using NUnit.Framework;
 using WhooshDI.Configuration;
@@ -279,6 +280,65 @@ namespace WhooshDI.UnitTests
             Action act = () => whoosh.Resolve<ICar>(Cars.Renault);
 
             act.Should().Throw<InvalidOperationException>();
+        }
+    }
+
+    [TestFixture]
+    public class Whoosh_BeginScope
+    {
+        [Test]
+        public void ConstructedScopeIsNotAParentScope()
+        {
+            var whoosh = new Whoosh();
+
+            var scope = whoosh.BeginScope();
+
+            scope.Should().NotBe(whoosh);
+        }
+        
+        [Test]
+        public void ConstructedScopeResolvesDependencies()
+        {
+            var whoosh = new Whoosh();
+
+            ClassWithParameterlessCtor instance;
+            using (var scope = whoosh.BeginScope())
+            {
+                instance = scope.Resolve<ClassWithParameterlessCtor>();
+            }
+
+            instance.Should().NotBeNull();
+        }
+
+        [Test]
+        public void AllowsNestedScopes()
+        {
+            var whoosh = new Whoosh();
+
+            ClassWithParameterlessCtor instance;
+            using (var scope = whoosh.BeginScope())
+            {
+                using (var nestedScope = whoosh.BeginScope())
+                {
+                    instance = nestedScope.Resolve<ClassWithParameterlessCtor>();
+                }
+            }
+
+            instance.Should().NotBeNull();
+        }
+
+        [Test]
+        public void ConstructedScopeDisposesAllResolvedDependences()
+        {
+            var whoosh = new Whoosh();
+
+            DisposableClass instance;
+            using (var scope = whoosh.BeginScope())
+            {
+                instance = scope.Resolve<DisposableClass>();
+            }
+
+            instance.IsDisposed.Should().BeTrue();
         }
     }
 }
