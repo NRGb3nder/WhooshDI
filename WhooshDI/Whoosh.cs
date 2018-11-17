@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Force.DeepCloner;
 using WhooshDI.Attributes;
 using WhooshDI.Configuration;
@@ -20,8 +19,6 @@ namespace WhooshDI
     /// </summary>
     public sealed class Whoosh : IWhooshScope
     {
-        // TODO: Conditions
-        // TODO: null checks -> aspect (CastleCore)
         private readonly IWhooshConfiguration _configuration;
         
         private readonly Dictionary<ImplementationConfiguration, object> _singletons = 
